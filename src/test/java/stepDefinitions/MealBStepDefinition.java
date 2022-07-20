@@ -6,10 +6,13 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.messages.types.DataTable;
 import io.restassured.response.Response;
 import org.testng.Assert;
 import pojo.Expense;
 import pojo.TokenRequestBuilder;
+
+import java.util.List;
 
 import static api.MealBApi.*;
 import static utils.ConfigLoader.*;
@@ -24,6 +27,7 @@ public class MealBStepDefinition extends TestBase{
     String env = getQaEnv();
     String url;
     Expense payload;
+    int expected_ID;
 
 
     @Given("I want to print {string}")
@@ -100,6 +104,30 @@ public class MealBStepDefinition extends TestBase{
         String expected_expName = payload.getName();
         String actual_expName = JsonPath.read(response.asPrettyString(),"$.result.name");
         Assert.assertEquals(actual_expName,expected_expName,"Actual EXP name doesn't match Expected EXP name");
+
+    }
+
+    @When("I submit a GET request to expense by ID {int} endpoint")
+    public void iSubmitAGETRequestToExpenseByIDEndpoint(int id) {
+
+        expected_ID = id;
+        url = env + Route.API + Route.GET_EXPENSES_ID+expected_ID;
+        response = submitGetRequest(url, token);
+
+    }
+
+    @And("I validate expected ID same as actual ID from the response")
+    public void iValidateExpectedIDSameAsActualIDFromTheResponse() {
+
+        int actual_ID = JsonPath.read(response.asPrettyString(),"$.result.id");
+        String expName = JsonPath.read(response.asPrettyString(),"$.result.name");
+
+        System.out.println("expected id : "+expected_ID);
+        System.out.println("actual id : "+actual_ID);
+        System.out.println("Exp Name : "+expName);
+
+        Assert.assertEquals(actual_ID,expected_ID,"IDs not matching");
+
 
     }
 }
