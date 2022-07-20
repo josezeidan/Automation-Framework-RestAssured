@@ -6,8 +6,8 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions( // annotation for the class itself
         features = "src/test/resources/features",
         glue = "stepDefinitions",
-        dryRun = true,
-        tags ="@token",
+        dryRun = false,
+        tags ="@createExp",
         monochrome = true, // no jebresh , let us rad directly in console
         plugin = {"pretty", "html:target/cucumber-html.html"}
 

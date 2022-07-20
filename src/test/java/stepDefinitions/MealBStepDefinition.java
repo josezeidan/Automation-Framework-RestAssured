@@ -8,10 +8,12 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 import org.testng.Assert;
+import pojo.Expense;
 import pojo.TokenRequestBuilder;
 
 import static api.MealBApi.*;
 import static utils.ConfigLoader.*;
+import static utils.MealBUtils.*;
 
 public class MealBStepDefinition extends TestBase{
 
@@ -19,7 +21,9 @@ public class MealBStepDefinition extends TestBase{
     TokenRequestBuilder tokenRequestBuilder;
     Response response;
     String token;
-    String env = getQaEnv();;
+    String env = getQaEnv();
+    String url;
+    Expense payload;
 
 
     @Given("I want to print {string}")
@@ -64,7 +68,7 @@ public class MealBStepDefinition extends TestBase{
 
     @When("I submit a GET request to expense endpoint")
     public void i_submit_a_get_request_to_expense_endpoint() {
-        String url = env + Route.API + Route.GET_EXPENSES;
+         url = env + Route.API + Route.GET_EXPENSES;
         response = submitGetRequest(url, token);
     }
 
@@ -76,5 +80,26 @@ public class MealBStepDefinition extends TestBase{
             token = getToken();
 
         }
+    }
+
+    @When("I submit a POST request to create expense endpoint")
+    public void iSubmitAPOSTRequestToCreateExpenseEndpoint() {
+
+
+         url = env + Route.API + Route.CREATE_EXPENSE;
+         payload = expBuilder("Miami",450.00, "07/14/2022 05:28:00",
+                "Travel");
+       response = submitPostRequest(url,token ,payload);
+
+
+    }
+
+    @Then("I validate expected expense name with actual expense name from API")
+    public void iValidateExpectedExpenseNameWithActualExpenseNameFromAPI() {
+
+        String expected_expName = payload.getName();
+        String actual_expName = JsonPath.read(response.asPrettyString(),"$.result.name");
+        Assert.assertEquals(actual_expName,expected_expName,"Actual EXP name doesn't match Expected EXP name");
+
     }
 }
